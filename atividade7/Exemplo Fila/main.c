@@ -98,10 +98,13 @@ int main(int argc, char *argv[]) {
               NUM_CAIXAS) { // condição que respeita o número total de caixas
         if (!filaVazia(filas[caixa - 1])) { // se a fila for diferente de vazia
                                             // o if é executado
+
+          printf("Caixa %d: ", caixa);
+
           int clienteAtendido;
           desenfileirar(filas[caixa - 1],
                         &clienteAtendido); // irá 'atender' o cliente
-          printf("Caixa %d: Cliente %d está sendo atendido.\n", caixa + 1,
+          printf("Cliente %d está sendo atendido.\n", caixa + 1,
                  clienteAtendido);
         } else {
           printf("Caixa %d: A fila está vazia. Não há clientes para atender.\n",
