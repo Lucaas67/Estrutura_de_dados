@@ -1,3 +1,5 @@
+// tabela_hash.c
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,92 +7,96 @@
 
 #define TABLE_SIZE 100
 
-typedef struct HashNode {
+// Definindo a estrutura de um nó na tabela hash
+typedef struct Node {
     char* chave;
     char* dado;
-    struct HashNode* proximo;
-} HashNode;
+    struct Node* prox;
+} Node;
 
-static HashNode* tabela[TABLE_SIZE];
+// Array de ponteiros para nós
+Node* table[TABLE_SIZE];
 
-// Função hash simples que converte a chave em um índice do array
+// Função de hash simples para calcular o índice
 int hash(char* chave) {
     int hash = 0;
     for (int i = 0; chave[i] != '\0'; i++) {
-        hash = (hash + chave[i]) % TABLE_SIZE;
+        hash += chave[i];
     }
-    return hash;
+    return hash % TABLE_SIZE;
 }
 
-void hash_table_init() {
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        tabela[i] = NULL;
+// Função para inserir um par chave-valor na tabela hash
+void hash_table_put(char* chave, char* dado) {
+    int index = hash(chave);
+
+    Node* novo_node = (Node*)malloc(sizeof(Node));
+    novo_node->chave = strdup(chave);
+    novo_node->dado = strdup(dado);
+    novo_node->prox = NULL;
+
+    if (table[index] == NULL) {
+        table[index] = novo_node;
+    } else {
+        Node* atual = table[index];
+        while (atual->prox != NULL) {
+            atual = atual->prox;
+        }
+        atual->prox = novo_node;
     }
 }
 
+// Função para obter o valor associado a uma chave na tabela hash
 char* hash_table_get(char* chave) {
     int index = hash(chave);
-    HashNode* atual = tabela[index];
+
+    Node* atual = table[index];
     while (atual != NULL) {
         if (strcmp(atual->chave, chave) == 0) {
             return atual->dado;
         }
-        atual = atual->proximo;
+        atual = atual->prox;
     }
+
     return NULL;
 }
 
-void hash_table_put(char* chave, char* dado) {
-    int index = hash(chave);
-    HashNode* novo_node = (HashNode*)malloc(sizeof(HashNode));
-    if (novo_node == NULL) {
-        fprintf(stderr, "Erro: Falha na alocação de memória para o novo nó.\n");
-        exit(1);
-    }
-    novo_node->chave = chave;
-    novo_node->dado = dado;
-    novo_node->proximo = tabela[index];
-    tabela[index] = novo_node;
-}
-
+// Função para verificar se a chave está na tabela hash
 int hash_table_contains(char* chave) {
     int index = hash(chave);
-    HashNode* atual = tabela[index];
+
+    Node* atual = table[index];
     while (atual != NULL) {
         if (strcmp(atual->chave, chave) == 0) {
-            return 1;
+            return 1; // Chave encontrada
         }
-        atual = atual->proximo;
+        atual = atual->prox;
     }
-    return 0;
+
+    return 0; // Chave não encontrada
 }
 
+// Função para remover um par chave-valor da tabela hash
 void hash_table_remove(char* chave) {
     int index = hash(chave);
-    HashNode* atual = tabela[index];
-    HashNode* anterior = NULL;
+
+    Node* atual = table[index];
+    Node* anterior = NULL;
+
     while (atual != NULL) {
         if (strcmp(atual->chave, chave) == 0) {
             if (anterior == NULL) {
-                tabela[index] = atual->proximo;
+                table[index] = atual->prox;
             } else {
-                anterior->proximo = atual->proximo;
+                anterior->prox = atual->prox;
             }
+            free(atual->chave);
+            free(atual->dado);
             free(atual);
             return;
         }
         anterior = atual;
-        atual = atual->proximo;
+        atual = atual->prox;
     }
 }
 
-void hash_table_destroy() {
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        HashNode* atual = tabela[i];
-        while (atual != NULL) {
-            HashNode* proximo = atual->proximo;
-            free(atual);
-            atual = proximo;
-        }
-    }
-}
