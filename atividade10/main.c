@@ -1,10 +1,8 @@
-// main.c
-
 #include <stdio.h>
 #include "tabela_hash.h"
 
 int main() {
-    // Demonstração do uso da tabela hash
+    
     hash_table_put("chave1", "0");
     hash_table_put("chave2", "1");
 
